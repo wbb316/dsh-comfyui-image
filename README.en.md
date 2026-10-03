@@ -389,4 +389,5 @@ Plans beyond V1 (upscaling / outpainting / batching / multiple backends / consis
 | [docs/PARAMS.md](./docs/PARAMS.md) | Item-by-item documentation of the tool parameters and the output structure |
 | [docs/FAQ.md](./docs/FAQ.md) | FAQ and troubleshooting |
 | [docs/ROADMAP.md](./docs/ROADMAP.md) | Future expansion plans |
+| [docs/RELEASING.md](./docs/RELEASING.md) | Release process (Chinese): pushing a tag creates the GitHub Release and publishes to npm; how to configure `NPM_TOKEN` |
 | [CHANGELOG.md](./CHANGELOG.md) | Version history |

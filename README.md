@@ -388,4 +388,5 @@ V1 之后的计划（超分 / 扩图 / 批量 / 多后端 / 一致性）见 [doc
 | [docs/PARAMS.md](./docs/PARAMS.md) | 工具参数与输出结构逐项说明 |
 | [docs/FAQ.md](./docs/FAQ.md) | 常见问题与故障排查 |
 | [docs/ROADMAP.md](./docs/ROADMAP.md) | 未来扩展计划 |
+| [docs/RELEASING.md](./docs/RELEASING.md) | 发版流程：推 tag 自动建 Release、自动发 npm，以及 `NPM_TOKEN` 怎么配 |
 | [CHANGELOG.md](./CHANGELOG.md) | 版本变化 |

@@ -1,0 +1,66 @@
+name: Release
+
+# 推一个形如 v0.2.0 的 tag，就自动建一个 GitHub Release（说明由 GitHub 按提交自动生成）。
+# 也可以在 Actions 页面手动触发，补发某个历史 tag 的 Release。
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要补发 Release 的 tag（例如 v0.1.0，必须已推送到远端）'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 建 Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 生成变更说明要读历史提交，浅克隆不够用
+          fetch-depth: 0
+
+      - name: 解析 tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 重复推送同一个 tag、或手动补发已经存在的版本时，不要报错——直接跳过
+      - name: 是否已有同名 Release
+        id: exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.tag.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::${{ steps.tag.outputs.tag }} 的 Release 已存在，跳过。"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 建 Release
+        if: steps.exists.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.tag.outputs.tag }}" \
+            --title "${{ steps.tag.outputs.tag }}" \
+            --generate-notes
+
+      - name: 写入运行摘要
+        run: |
+          echo "### Release ${{ steps.tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.exists.outputs.exists }}" = "true" ]; then
+            echo "已存在，本次未新建。" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "已新建：https://github.com/${{ github.repository }}/releases/tag/${{ steps.tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
+          fi

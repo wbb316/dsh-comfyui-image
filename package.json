@@ -47,6 +47,18 @@
   ],
   "author": "dsh-comfyui-image contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wbb316/dsh-comfyui-image.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wbb316/dsh-comfyui-image/issues"
+  },
+  "homepage": "https://github.com/wbb316/dsh-comfyui-image#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "meta": {
     "title": "ComfyUI 图片生成",
     "description": "给 DSH 补上图片生成能力：用本地 ComfyUI 作图，一个 generate_image 工具覆盖文生图、图生图、局部重绘与背景移除。"

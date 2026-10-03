@@ -3,6 +3,22 @@
 本文件记录 **dsh-comfyui-image** 的版本变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [未发布]
+
+### 新增
+
+- **自动发版流水线**（都由 tag 驱动，不需要在本地跑发布命令）：
+  - [.github/workflows/release.yml](.github/workflows/release.yml)：推 `v*.*.*` tag 自动建 GitHub Release
+    （变更说明由 GitHub 按提交生成；同名 Release 已存在时跳过而不是报错；支持在 Actions 页面手动补发历史 tag）。
+  - [.github/workflows/publish.yml](.github/workflows/publish.yml)：Release 发布后自动
+    `npm test` + `npm publish --provenance --access public`。发布前会**校验 tag 名与 `package.json` 的 version 一致**
+    （npm 同一版本号不能覆盖重发，这个防呆比事后改版本值钱）；未配置 `NPM_TOKEN` secret 时**跳过发布并打 notice**，
+    工作流保持绿色，fork 出去推 tag 不会红。
+- 包元数据补齐 `repository` / `bugs` / `homepage` / `publishConfig`（`publishConfig` 显式钉官方源，
+  避免本机或 CI 的镜像 registry 影响发布目标；`repository` 也是 npm provenance 签名要求的前置条件）。
+- 文档：新增 [docs/RELEASING.md](docs/RELEASING.md)（发版步骤、`NPM_TOKEN` 怎么生成与配置、
+  手动补发、provenance 说明、`npm pack` 清单核对），并在中英 README 的文档表里挂上。
+
 ## [0.1.0] — 2026-10-03
 
 首个可用版本（需求书里的「实用版 V1」）。

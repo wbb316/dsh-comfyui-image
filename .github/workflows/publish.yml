@@ -1,0 +1,67 @@
+name: Publish to npm
+
+# Release 一发布就发 npm（release.yml 建完 Release 会接着触发这里），
+# 也可以在 Actions 页面手动触发重发。
+#
+# 首次使用需要做一件事（见 docs/RELEASING.md）：
+#   在本仓库 Settings → Secrets and variables → Actions 里加一个名为 NPM_TOKEN 的 secret
+#   （值是 npm 的 Automation / Granular Access Token，权限只需该包的 read+write）。
+# 没配也不会失败：下面的 guard 会跳过发布并打一条 notice，仓库保持绿。
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # 发布用 OIDC 带 provenance 签名，需要这个权限
+  id-token: write
+
+jobs:
+  publish:
+    name: npm publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # 显式指向官方源：本机/镜像的 registry 配置不该影响发布目标
+          registry-url: 'https://registry.npmjs.org'
+
+      # secrets 在 step 级 if 里不可用，所以先落到 env 再判断
+      - name: 检查 NPM_TOKEN 是否已配置
+        id: guard
+        env:
+          TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::没有配置 NPM_TOKEN secret，跳过 npm 发布（见 docs/RELEASING.md）。"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 防呆：tag 是 v0.2.0 而 package.json 还写着 0.1.0 时，发出去的就是错的版本
+      - name: 校验版本号与 tag 一致
+        if: steps.guard.outputs.skip == 'false' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          want="${GITHUB_REF_NAME#v}"
+          have="$(node -p "require('./package.json').version")"
+          if [ "$want" != "$have" ]; then
+            echo "::error::tag 是 v$want，但 package.json 的 version 是 $have，拒绝发布。"
+            exit 1
+          fi
+          echo "版本号一致：$have"
+
+      # 发出去的包先自证：测试自带 mock ComfyUI，不需要真装 ComfyUI，几秒就能跑完
+      - name: 跑测试
+        if: steps.guard.outputs.skip == 'false'
+        run: npm test
+
+      - name: 发布到 npm
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
