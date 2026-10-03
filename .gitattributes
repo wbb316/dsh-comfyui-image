@@ -1,0 +1,14 @@
+# 统一行尾：仓库里一律存 LF，避免 Windows/Linux 之间来回改行尾。
+# 这一点对 CI 直接相关 —— 工作流里有一步是 `git diff --exit-code -- lib`，
+# 用来自证「提交进仓库的 lib/ 与当前 src/ 编译结果一致」；行尾漂移会让这一步假报警。
+* text=auto eol=lf
+
+# 以下按二进制处理，禁止任何文本转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.7z  binary
+*.ico binary
+*.ttf binary
