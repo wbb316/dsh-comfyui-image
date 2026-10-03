@@ -55,6 +55,12 @@
   改为跟随上传的输入图（与真实 ComfyUI 一致），不再一律回 64×64。
 - **一条测试的环境依赖**：它要求「默认地址必然连不上」，本机装了 ComfyUI 就会失败（CI 上绿、
   开发机红）。现已按测试套件自己的原则把默认地址钉到不可达端口，只验证该验证的事。
+- **`npm test` 在 Node 20 上直接报错**（CI 矩阵里 Node 20 两个平台全红、Node 22 全绿）：
+  `node --test "test/*.test.mjs"` 依赖 `--test` 的 glob 展开，而那是 Node 21 才有的能力，
+  Node 20 会把引号里的通配符当字面路径，报 `Could not find '.../test/*.test.mjs'`；
+  去掉引号交给 shell 展开也不行——npm scripts 在 Windows 走 cmd（不展开 glob）、POSIX 走 sh（展开）。
+  现改为 `scripts/run-tests.mjs`：自己列出 `test/*.test.mjs`，把**显式路径**交给 `--test`，
+  Node 18+ 通用、两个平台行为一致（`engines` 仍声明 `>=20`，不靠提高门槛掩盖兼容问题）。
 - **去背方案清单里的三处硬伤**（真机装上 `ComfyUI_essentials` 之后才暴露，靠 ComfyUI-Manager 的
   `extension-node-map.json` 索引定证）：
   1. 原第一优先方案写的是节点类名 `RemBG`，而索引里**没有任何仓库**声明这个类名，
