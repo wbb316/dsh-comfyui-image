@@ -13,6 +13,11 @@
 
 > 一句话用法：装好 ComfyUI、启用插件，然后对 Agent 说「生成一张柯基宇航员的图」就行。
 
+![效果示例：柯基宇航员（本插件 + 本地 ComfyUI 实际出图）](./docs/preview.png)
+
+> 上图就是照着上面这句话出的：`text2img`、SD1.5 底模、512×512、`seed 42`、`dpmpp_2m`/`karras`
+> —— 图与复现参数都在仓库里（`docs/preview.png` + 同名 `.json` sidecar）。
+
 ---
 
 ## 目录
@@ -99,10 +104,21 @@ DSH 本身没有出图能力，而 Agent 又经常需要「画一张图」。本
 
 ### 2. 把插件装进 DSH
 
-> ⚠️ **本插件目前还没有发布到 npm**，所以下面第二种「npm 包名」的方式要等发布后才能用；
-> 现在请用**本地路径**安装。
+> 装法有三种，按方便程度排序：**方式 A 直接从 GitHub 装**（不需要 npm 账号，已实测）；
+> 自己 clone 到本地就用**方式 B**；懒得分步就用**方式 C**手改 profile。
+> 本插件**还没有发布到 npm**，所以暂时不能用「npm 包名」安装。
 
-**方式 A：DSH 插件管理器（推荐）**
+**方式 A：一条命令从 GitHub 装（推荐，已实测）**
+
+```bash
+dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image
+```
+
+`dsh plugin` 底层走的就是 pnpm（实测 21.6 秒装完，装到的 `lib/` 13 个文件可直接运行，
+不需要装 TypeScript、不需要构建）。在 DSH 的**设置 → 插件**里把安装目标填成
+`github:wbb316/dsh-comfyui-image` 效果相同。装完重启 DSH。
+
+**方式 B：DSH 插件管理器（填本地路径）**
 
 在 DSH 的 **设置 → 插件**里安装，目标填插件所在目录的本地路径，例如：
 
@@ -112,7 +128,7 @@ link:D:/dsh/plugins/dsh-comfyui-image
 
 管理器会自己改 profile 的 `package.json`（加 `link:` 依赖 + 进 `dsh.profile.bundles`），并在失败时回滚。
 
-**方式 B：手动改 profile**
+**方式 C：手动改 profile**
 
 打开当前 profile 的 `package.json`（`~/.dsh/profiles/<profile>/package.json`），做两件事：
 
@@ -134,7 +150,7 @@ link:D:/dsh/plugins/dsh-comfyui-image
 
 然后在 profile 目录里装一次依赖（`pnpm install` 或 DSH 界面里的「安装/更新插件」），再重启 DSH。
 
-**方式 C：本地开发**
+**方式 D：本地开发**
 
 ```bash
 git clone <本仓库> dsh-comfyui-image
@@ -144,7 +160,7 @@ npm run build        # 改过 src/ 才需要；lib/ 已随仓库提交
 npm test             # 88 项测试，自带 mock ComfyUI，不需要真装 ComfyUI
 ```
 
-之后按方式 A / B 把它 link 进 profile 即可。
+之后按方式 B / C 把它 link 进 profile 即可。
 
 ## 启用与验证
 

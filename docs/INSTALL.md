@@ -5,7 +5,8 @@
 装这个插件分两步：**① 让 ComfyUI 跑起来** → **② 把插件装进 DSH**。第二步只花一分钟，第一步才是重活。
 
 > 不想读长文？最短路径：装 ComfyUI 便携版 → 双击启动 → 往 `models/checkpoints/` 放一个底模 →
-> 在 DSH 插件管理器里装 `link:<插件目录>` → 跑 `npm run doctor` 看到四个 ✓ 就成了。
+> 在 DSH 插件管理器里装 `github:wbb316/dsh-comfyui-image`（已经 clone 到本地就用 `link:<插件目录>`）→
+> 跑 `npm run doctor` 看到四个 ✓ 就成了。
 
 ---
 
@@ -124,6 +125,9 @@ curl -s http://127.0.0.1:8188/object_info/CheckpointLoaderSimple
 只有你要改源码时才需要（见 [README 的开发一节](../README.md#开发)）。
 
 ### 2.2 方式 A：DSH 插件管理器（推荐）
+
+> 目标也可以直接填 `github:wbb316/dsh-comfyui-image`：管理器会从 GitHub 拉取，**不需要你 clone 到本地**。
+> 命令行等价写法是 `dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image`（实测 21.6 秒）。
 
 1. 打开 DSH → **设置 → 插件**（插件管理器）；
 2. 选择**安装**，目标填本地路径，前缀 `link:`：

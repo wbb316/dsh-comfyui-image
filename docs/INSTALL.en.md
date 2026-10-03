@@ -5,7 +5,7 @@
 Installing this plugin takes two steps: **① get ComfyUI running** → **② install the plugin into DSH**. The second step takes a minute; the first one is the real work.
 
 > Don't feel like reading a long document? Shortest path: install the ComfyUI portable build → double-click to start it → drop a checkpoint into `models/checkpoints/` →
-> install `link:<plugin directory>` in the DSH plugin manager → run `npm run doctor` and see four ✓ — done.
+> install `github:wbb316/dsh-comfyui-image` in the DSH plugin manager (use `link:<plugin directory>` if you already cloned it) → run `npm run doctor` and see four ✓ — done.
 
 ---
 
@@ -129,6 +129,10 @@ You do **not** need to run `npm install` / `npm run build` — the repository al
 You only need to when you're changing the source (see the [Development section of the README](../README.en.md#development)).
 
 ### 2.2 Option A: the DSH Plugin Manager (Recommended)
+
+> The target can also be `github:wbb316/dsh-comfyui-image`: the manager fetches it from GitHub, so you do **not**
+> need to clone it locally. The equivalent command line is
+> `dsh plugin --profile <your profile> add github:wbb316/dsh-comfyui-image` (measured: 21.6 s).
 
 1. Open DSH → **Settings → Plugins** (the plugin manager);
 2. Choose **Install** and enter a local path as the target, prefixed with `link:`:
