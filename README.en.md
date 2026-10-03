@@ -2,7 +2,12 @@
 
 **English** | [简体中文](./README.md)
 
-A plugin that gives [DeepSeek Harness](https://github.com/) (DSH) an **image generation capability**: the backend talks to a **local ComfyUI**, and it exposes exactly **one** Agent tool, `generate_image` — text-to-image, image-to-image, inpainting and background removal in one. It depends on no external commercial API and has **zero third-party runtime dependencies** (it only uses Node's built-in `fetch` / `FormData`).
+[![CI](https://github.com/wbb316/dsh-comfyui-image/actions/workflows/ci.yml/badge.svg)](https://github.com/wbb316/dsh-comfyui-image/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/wbb316/dsh-comfyui-image?label=release)](https://github.com/wbb316/dsh-comfyui-image/releases)
+[![License](https://img.shields.io/github/license/wbb316/dsh-comfyui-image)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+
+A plugin that gives **DeepSeek Harness** (DSH) an **image generation capability**: the backend talks to a **local ComfyUI**, and it exposes exactly **one** Agent tool, `generate_image` — text-to-image, image-to-image, inpainting and background removal in one. It depends on no external commercial API and has **zero third-party runtime dependencies** (it only uses Node's built-in `fetch` / `FormData`).
 
 > In one sentence: install ComfyUI, enable the plugin, then tell the Agent "generate a picture of a corgi astronaut" — that's it.
 

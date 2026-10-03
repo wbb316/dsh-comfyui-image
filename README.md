@@ -2,7 +2,12 @@
 
 [English](./README.en.md) | **简体中文**
 
-给 [DeepSeek Harness](https://github.com/)（DSH）补上**图片生成能力**的插件：后端接**本地 ComfyUI**，
+[![CI](https://github.com/wbb316/dsh-comfyui-image/actions/workflows/ci.yml/badge.svg)](https://github.com/wbb316/dsh-comfyui-image/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/wbb316/dsh-comfyui-image?label=release)](https://github.com/wbb316/dsh-comfyui-image/releases)
+[![License](https://img.shields.io/github/license/wbb316/dsh-comfyui-image)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+
+给 **DeepSeek Harness**（DSH）补上**图片生成能力**的插件：后端接**本地 ComfyUI**，
 对外只暴露**一个** Agent 工具 `generate_image` —— 文生图、图生图、局部重绘、背景移除四合一。
 不依赖任何外部商业 API，运行时**零第三方依赖**（只用 Node 内置的 `fetch` / `FormData`）。
 
