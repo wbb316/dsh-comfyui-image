@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Node ${{ matrix.node }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # 这里刻意用 install 而不是 ci：仓库里 package-lock.json 的 resolved 字段
+      # 指向国内镜像（生成锁文件时的 registry），`npm ci` 会照抄那些地址。
+      # install 会按默认 registry 重新解析，在 CI 上更稳。
+      - name: 安装依赖
+        run: npm install --no-audit --no-fund
+
+      - name: 类型检查
+        run: npm run typecheck
+
+      - name: 构建
+        run: npm run build
+
+      # lib/ 是提交进仓库的编译产物（用户不装 TypeScript 也能直接跑），
+      # 所以必须保证它和 src/ 是同步的——改了 src 忘了 build 会在这里被抓住。
+      - name: 检查 lib/ 是否与 src/ 同步
+        run: git diff --exit-code -- lib
+
+      # 测试自带一个 mock ComfyUI，跑测试不需要真的装 ComfyUI。
+      - name: 单元测试 + 端到端测试
+        run: npm test
+
+      - name: 自检脚本的失败路径（连不上时应以退出码 1 结束）
+        shell: bash
+        run: |
+          set +e
+          node scripts/doctor.mjs --base-url http://127.0.0.1:1 > /dev/null 2>&1
+          code=$?
+          set -e
+          if [ "$code" != "1" ]; then
+            echo "doctor 在连不上 ComfyUI 时应该退出码 1，实际是 $code"
+            exit 1
+          fi

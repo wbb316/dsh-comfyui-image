@@ -1,0 +1,6 @@
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+# lib/ 是编译产物，但**故意提交**：用户 clone 下来不装 TypeScript 也能直接跑。
+# 只有在你改了 src/ 之后才需要 `npm run build` 重新生成。

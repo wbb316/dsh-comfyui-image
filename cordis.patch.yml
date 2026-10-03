@@ -1,0 +1,13 @@
+# 把本插件插进 DSH profile 的配置树（bundle 挂载声明）。
+#
+# 想改 ComfyUI 地址 / 默认模型等，不必改这里：直接改
+#   ~/.dsh-comfyui-image/config.json
+# 或者在 profile 的 cordis.patch.yml 里给这条 entry 加 config：
+#   - id: dsh-comfyui-image
+#     name: dsh-comfyui-image
+#     config:
+#       baseUrl: 'http://127.0.0.1:8188'
+#       checkpoint: 'sd_xl_base_1.0.safetensors'
+- insert:
+    - id: dsh-comfyui-image
+      name: dsh-comfyui-image

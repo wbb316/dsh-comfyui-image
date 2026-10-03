@@ -1,0 +1,67 @@
+{
+  "name": "dsh-comfyui-image",
+  "version": "0.1.0",
+  "description": "DSH 图片生成插件：本地 ComfyUI 后端，对外只暴露一个统一的 generate_image 工具（文生图 / 图生图 / 局部重绘 / 背景移除）。A DSH image-generation plugin backed by a local ComfyUI server.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src",
+    "scripts",
+    "docs",
+    "tsconfig.json",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "icon.svg"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test \"test/*.test.mjs\"",
+    "doctor": "node scripts/doctor.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "comfyui",
+    "image-generation",
+    "text2img",
+    "img2img",
+    "inpaint",
+    "remove-background",
+    "stable-diffusion",
+    "图片生成"
+  ],
+  "author": "dsh-comfyui-image contributors",
+  "license": "MIT",
+  "meta": {
+    "title": "ComfyUI 图片生成",
+    "description": "给 DSH 补上图片生成能力：用本地 ComfyUI 作图，一个 generate_image 工具覆盖文生图、图生图、局部重绘与背景移除。"
+  },
+  "icon": "./icon.svg",
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.2.0-rc.1"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3"
+  }
+}
