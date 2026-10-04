@@ -19,7 +19,7 @@ jobs:
     name: 建 Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # 生成变更说明要读历史提交，浅克隆不够用
           fetch-depth: 0

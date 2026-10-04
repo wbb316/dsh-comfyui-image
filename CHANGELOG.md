@@ -3,7 +3,7 @@
 本文件记录 **dsh-comfyui-image** 的版本变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [未发布]
+## [0.1.1] — 2026-10-04
 
 ### 新增
 
@@ -30,8 +30,16 @@
   npm 页面上不会出现「Built and signed on GitHub Actions」——从下一个版本起走 `publish.yml` 才会带上；
   ②npm 同一版本号**不能覆盖重发**，`0.1.0` 已占号，任何改动想再发布都必须先升版本号（0.1.1）。
 - README 顶部加 **npm 徽章**（随 `publish.yml` 的发布状态自动显示版本号）。
+- **npm 上 `0.1.0` 包内的 README 是旧版**：那个 tarball 打包于提交 `aecc4b6`，而「安装首选 npm」的文档改动
+  （`21064fd`）在它之后，所以 `0.1.0` 的读者在 npm 页面上看到的仍是「首选从 GitHub 装」。
+  从 **0.1.1** 起包内文档与仓库一致（`npm view dsh-comfyui-image@0.1.0 gitHead` 可以自己核对这一点）。
 
 ### 修复
+
+- **CI 依赖的 Actions 升到 v7**：`actions/checkout` 与 `actions/setup-node` 由 `@v4` 升为 `@v7`。
+  起因是 GitHub 给每个 job 弹了 `Node.js 20 is deprecated` 注解——v4 系列的这几个 Action 声明的是 Node 20 运行时，
+  被强制跑在 Node 24 上。升级前先取了两者的 `action.yml` 逐项核对，确认仍支持本仓库用到的
+  `fetch-depth` / `node-version` / `registry-url` 三个输入，且 `using: node24`——不是凭版本号猜能升。
 
 - **`docs/RELEASING.md` 里的 token 配置说明与 npm 现行界面不符**：原文写「选 Granular Access Token，
   或者选经典的 **Automation** 类型」，但现在的 npm 点了 **Generate New Token** 之后

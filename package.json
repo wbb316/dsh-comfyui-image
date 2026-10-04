@@ -1,6 +1,6 @@
 {
   "name": "dsh-comfyui-image",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSH 图片生成插件：本地 ComfyUI 后端，对外只暴露一个统一的 generate_image 工具（文生图 / 图生图 / 局部重绘 / 背景移除）。A DSH image-generation plugin backed by a local ComfyUI server.",
   "type": "module",
   "main": "lib/index.js",
