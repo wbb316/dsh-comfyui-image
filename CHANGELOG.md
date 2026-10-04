@@ -20,10 +20,16 @@
   手动补发、provenance 说明、`npm pack` 清单核对），并在中英 README 的文档表里挂上。
 - README 顶部加了**效果示例图** [docs/preview.png](docs/preview.png)：本插件配本地 ComfyUI 实出的图，
   连同复现参数（`seed 42` / 512×512 / SD1.5 底模）一起写进文档，新访客第一眼能看到它真能出图。
-- 安装方式改为**首选一条命令从 GitHub 装**：`dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image`
+- 安装方式改为**首选从 npm 装**：`dsh plugin --profile <你的 profile> add dsh-comfyui-image`
+  （等价 `npm i dsh-comfyui-image`，或在 DSH 的**设置 → 插件**里把目标填成包名）。
+  同时保留**从 GitHub 装**的路径：`dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image`
   （`dsh plugin` 底层是 pnpm；实测 21.6 秒装完、装到的 `lib/` 13 个文件可直接运行——
-  **不需要 npm 账号、不需要本地 clone、不需要构建**）。插件管理器里把目标填成
-  `github:wbb316/dsh-comfyui-image` 等价；npm 尚未发布，「npm 包名」装法要等首次发布之后。
+  **不需要 npm 账号、不需要本地 clone、不需要构建**），npm 不可用或想跟随 `main` 分支时走这条。
+- **已发布到 npm**：`dsh-comfyui-image@0.1.0`（2026-10-04）。两点必须记清楚：
+  ①这**首次发布是本地手动完成的**（`npm publish`），因此这一版**没有 provenance 签名**，
+  npm 页面上不会出现「Built and signed on GitHub Actions」——从下一个版本起走 `publish.yml` 才会带上；
+  ②npm 同一版本号**不能覆盖重发**，`0.1.0` 已占号，任何改动想再发布都必须先升版本号（0.1.1）。
+- README 顶部加 **npm 徽章**（随 `publish.yml` 的发布状态自动显示版本号）。
 
 ### 修复
 

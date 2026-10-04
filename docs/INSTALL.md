@@ -5,7 +5,8 @@
 装这个插件分两步：**① 让 ComfyUI 跑起来** → **② 把插件装进 DSH**。第二步只花一分钟，第一步才是重活。
 
 > 不想读长文？最短路径：装 ComfyUI 便携版 → 双击启动 → 往 `models/checkpoints/` 放一个底模 →
-> 在 DSH 插件管理器里装 `github:wbb316/dsh-comfyui-image`（已经 clone 到本地就用 `link:<插件目录>`）→
+> 在 DSH 插件管理器里装 `dsh-comfyui-image`（想从 GitHub 装就填 `github:wbb316/dsh-comfyui-image`；
+> 已经 clone 到本地就用 `link:<插件目录>`）→
 > 跑 `npm run doctor` 看到四个 ✓ 就成了。
 
 ---
@@ -114,20 +115,30 @@ curl -s http://127.0.0.1:8188/object_info/CheckpointLoaderSimple
 
 ## 二、把插件装进 DSH
 
-> ⚠️ **本插件尚未发布到 npm**。所以「用包名装」现在装不到东西，请用下面的**本地路径**方式。
+> 三种装法，按方便程度排序：**方式 A 从 npm 装**（已发布，最省事）；**方式 B 插件管理器**
+> （可以直接填 `github:wbb316/dsh-comfyui-image`，不必先 clone）；**方式 C 手动改 profile**。
 
-### 2.1 先拿到插件代码
+### 2.1 方式 A：从 npm 装（推荐）
+
+```bash
+dsh plugin --profile <你的 profile> add dsh-comfyui-image
+```
+
+等价写法：`npm i dsh-comfyui-image`，或在 DSH → **设置 → 插件** 里把安装目标填成 `dsh-comfyui-image`。
+包里带的 `lib/` 是编译好的，**不需要构建**。装完重启 DSH。
+
+### 2.2 方式 B：DSH 插件管理器（可以不用 clone）
+
+> 目标也可以直接填 `github:wbb316/dsh-comfyui-image`：管理器会从 GitHub 拉取，**不需要你 clone 到本地**。
+> 命令行等价写法是 `dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image`（实测 21.6 秒）。
+
+先拿到插件代码（目标填 `github:` 时跳过这一步）：
 
 - 从仓库 clone：`git clone <本仓库地址> D:/dsh/plugins/dsh-comfyui-image`
 - 或者直接用你已有的本地目录（例如本机上的 `D:/dsh/plugins/dsh-comfyui-image`）
 
 **不需要**跑 `npm install` / `npm run build` —— 仓库里已经带了编译好的 `lib/`。
 只有你要改源码时才需要（见 [README 的开发一节](../README.md#开发)）。
-
-### 2.2 方式 A：DSH 插件管理器（推荐）
-
-> 目标也可以直接填 `github:wbb316/dsh-comfyui-image`：管理器会从 GitHub 拉取，**不需要你 clone 到本地**。
-> 命令行等价写法是 `dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image`（实测 21.6 秒）。
 
 1. 打开 DSH → **设置 → 插件**（插件管理器）；
 2. 选择**安装**，目标填本地路径，前缀 `link:`：
@@ -140,7 +151,7 @@ curl -s http://127.0.0.1:8188/object_info/CheckpointLoaderSimple
    并把 `dsh-comfyui-image` 追加进 `dsh.profile.bundles`；失败会自动回滚。
 4. 装完重启 DSH（或按界面提示重载）。
 
-### 2.3 方式 B：手动改 profile
+### 2.3 方式 C：手动改 profile
 
 编辑 `~/.dsh/profiles/<你的 profile>/package.json`：
 

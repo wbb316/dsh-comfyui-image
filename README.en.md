@@ -6,6 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/wbb316/dsh-comfyui-image?label=release)](https://github.com/wbb316/dsh-comfyui-image/releases)
 [![License](https://img.shields.io/github/license/wbb316/dsh-comfyui-image)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![npm](https://img.shields.io/npm/v/dsh-comfyui-image?label=npm)](https://www.npmjs.com/package/dsh-comfyui-image)
 
 A plugin that gives **DeepSeek Harness** (DSH) an **image generation capability**: the backend talks to a **local ComfyUI**, and it exposes exactly **one** Agent tool, `generate_image` — text-to-image, image-to-image, inpainting and background removal in one. It depends on no external commercial API and has **zero third-party runtime dependencies** (it only uses Node's built-in `fetch` / `FormData`).
 
@@ -103,21 +104,31 @@ Then drop at least one checkpoint (an SDXL or SD1.5 `.safetensors`) into `ComfyU
 
 ### 2. Install the plugin into DSH
 
-> Three ways to install it, easiest first: **Option A installs straight from GitHub** (no npm account needed, verified);
-> use **Option B** if you cloned it locally; **Option C** is the manual profile edit.
-> This plugin is **not published to npm yet**, so installing by "npm package name" is not possible for now.
+> Four ways to install it, easiest first: **Option A installs from npm** (published, least work);
+> **Option B installs straight from GitHub** (no npm account needed, verified); use **Option C** if you cloned
+> it locally; **Option D** is the manual profile edit.
 
-**Option A: one command, straight from GitHub (recommended, verified)**
+**Option A: install from npm (recommended)**
+
+```bash
+dsh plugin --profile <your profile> add dsh-comfyui-image
+```
+
+Equivalent: `npm i dsh-comfyui-image`, or entering `dsh-comfyui-image` as the target in DSH's
+**Settings → Plugins**. The published `lib/` (13 files) is already compiled — **no TypeScript, no build step**.
+Restart DSH afterwards.
+
+**Option B: one command, straight from GitHub (no npm account needed, verified)**
 
 ```bash
 dsh plugin --profile <your profile> add github:wbb316/dsh-comfyui-image
 ```
 
-`dsh plugin` is backed by pnpm (measured: 21.6 s to install; the installed `lib/` holds 13 files and runs as-is —
-no TypeScript, no build step). Entering `github:wbb316/dsh-comfyui-image` as the target in DSH's
-**Settings → Plugins** does the same thing. Restart DSH afterwards.
+`dsh plugin` is backed by pnpm (measured: 21.6 s to install). Entering
+`github:wbb316/dsh-comfyui-image` as the target in DSH's **Settings → Plugins** does the same thing.
+**Use this when npm is unavailable or you want to track the `main` branch.** Restart DSH afterwards.
 
-**Option B: the DSH plugin manager (local path)**
+**Option C: the DSH plugin manager (local path)**
 
 Install it from DSH's **Settings → Plugins**, entering the local path of the plugin's directory as the target, for example:
 
@@ -127,7 +138,7 @@ link:D:/dsh/plugins/dsh-comfyui-image
 
 The manager updates the profile's `package.json` itself (adding a `link:` dependency + an entry in `dsh.profile.bundles`) and rolls back if it fails.
 
-**Option C: edit the profile manually**
+**Option D: edit the profile manually**
 
 Open the current profile's `package.json` (`~/.dsh/profiles/<profile>/package.json`) and do two things:
 

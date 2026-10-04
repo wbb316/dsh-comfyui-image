@@ -6,6 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/wbb316/dsh-comfyui-image?label=release)](https://github.com/wbb316/dsh-comfyui-image/releases)
 [![License](https://img.shields.io/github/license/wbb316/dsh-comfyui-image)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![npm](https://img.shields.io/npm/v/dsh-comfyui-image?label=npm)](https://www.npmjs.com/package/dsh-comfyui-image)
 
 给 **DeepSeek Harness**（DSH）补上**图片生成能力**的插件：后端接**本地 ComfyUI**，
 对外只暴露**一个** Agent 工具 `generate_image` —— 文生图、图生图、局部重绘、背景移除四合一。
@@ -104,21 +105,30 @@ DSH 本身没有出图能力，而 Agent 又经常需要「画一张图」。本
 
 ### 2. 把插件装进 DSH
 
-> 装法有三种，按方便程度排序：**方式 A 直接从 GitHub 装**（不需要 npm 账号，已实测）；
-> 自己 clone 到本地就用**方式 B**；懒得分步就用**方式 C**手改 profile。
-> 本插件**还没有发布到 npm**，所以暂时不能用「npm 包名」安装。
+> 装法有四种，按方便程度排序：**方式 A 从 npm 装**（已发布到 npm，最省事）；
+> **方式 B 从 GitHub 装**（不需要 npm 账号，已实测）；自己 clone 到本地就用**方式 C**；
+> 懒得分步就用**方式 D**手改 profile。
 
-**方式 A：一条命令从 GitHub 装（推荐，已实测）**
+**方式 A：从 npm 装（推荐）**
+
+```bash
+dsh plugin --profile <你的 profile> add dsh-comfyui-image
+```
+
+等价写法：`npm i dsh-comfyui-image`，或在 DSH 的**设置 → 插件**里把安装目标填成
+`dsh-comfyui-image`。包里的 `lib/`（13 个文件）是编译好的，**不需要装 TypeScript、不需要构建**。
+装完重启 DSH。
+
+**方式 B：一条命令从 GitHub 装（不需要 npm 账号，已实测）**
 
 ```bash
 dsh plugin --profile <你的 profile> add github:wbb316/dsh-comfyui-image
 ```
 
-`dsh plugin` 底层走的就是 pnpm（实测 21.6 秒装完，装到的 `lib/` 13 个文件可直接运行，
-不需要装 TypeScript、不需要构建）。在 DSH 的**设置 → 插件**里把安装目标填成
-`github:wbb316/dsh-comfyui-image` 效果相同。装完重启 DSH。
+`dsh plugin` 底层走的就是 pnpm（实测 21.6 秒装完）。在 DSH 的**设置 → 插件**里把安装目标填成
+`github:wbb316/dsh-comfyui-image` 效果相同。**npm 不可用或想跟随 main 分支时用这条**。装完重启 DSH。
 
-**方式 B：DSH 插件管理器（填本地路径）**
+**方式 C：DSH 插件管理器（填本地路径）**
 
 在 DSH 的 **设置 → 插件**里安装，目标填插件所在目录的本地路径，例如：
 
@@ -128,7 +138,7 @@ link:D:/dsh/plugins/dsh-comfyui-image
 
 管理器会自己改 profile 的 `package.json`（加 `link:` 依赖 + 进 `dsh.profile.bundles`），并在失败时回滚。
 
-**方式 C：手动改 profile**
+**方式 D：手动改 profile**
 
 打开当前 profile 的 `package.json`（`~/.dsh/profiles/<profile>/package.json`），做两件事：
 

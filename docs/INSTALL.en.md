@@ -5,7 +5,8 @@
 Installing this plugin takes two steps: **① get ComfyUI running** → **② install the plugin into DSH**. The second step takes a minute; the first one is the real work.
 
 > Don't feel like reading a long document? Shortest path: install the ComfyUI portable build → double-click to start it → drop a checkpoint into `models/checkpoints/` →
-> install `github:wbb316/dsh-comfyui-image` in the DSH plugin manager (use `link:<plugin directory>` if you already cloned it) → run `npm run doctor` and see four ✓ — done.
+> install `dsh-comfyui-image` in the DSH plugin manager (enter `github:wbb316/dsh-comfyui-image` to install from
+> GitHub instead, or `link:<plugin directory>` if you already cloned it) → run `npm run doctor` and see four ✓ — done.
 
 ---
 
@@ -118,21 +119,32 @@ With `npm run doctor` you can see which set was finally selected:
 
 ## 2. Install the Plugin into DSH
 
-> ⚠️ **This plugin has not yet been published to npm**. So "install it by package name" gets you nothing right now — use the **local path** approach below.
+> Three ways to install it, easiest first: **Option A installs from npm** (published, least work);
+> **Option B is the plugin manager** (you can enter `github:wbb316/dsh-comfyui-image` and skip cloning);
+> **Option C is the manual profile edit**.
 
-### 2.1 Get the Plugin Code First
+### 2.1 Option A: Install from npm (Recommended)
+
+```bash
+dsh plugin --profile <your profile> add dsh-comfyui-image
+```
+
+Equivalent: `npm i dsh-comfyui-image`, or entering `dsh-comfyui-image` as the install target in
+DSH → **Settings → Plugins**. The published `lib/` is already compiled — **no build step**. Restart DSH afterwards.
+
+### 2.2 Option B: the DSH Plugin Manager (Cloning Optional)
+
+> The target can also be `github:wbb316/dsh-comfyui-image`: the manager fetches it from GitHub, so you do **not**
+> need to clone it locally. The equivalent command line is
+> `dsh plugin --profile <your profile> add github:wbb316/dsh-comfyui-image` (measured: 21.6 s).
+
+Get the plugin code first (skip this when you enter the `github:` target):
 
 - Clone from the repository: `git clone <this repository's URL> D:/dsh/plugins/dsh-comfyui-image`
 - Or just use the local directory you already have (for example `D:/dsh/plugins/dsh-comfyui-image` on this machine)
 
 You do **not** need to run `npm install` / `npm run build` — the repository already ships a compiled `lib/`.
 You only need to when you're changing the source (see the [Development section of the README](../README.en.md#development)).
-
-### 2.2 Option A: the DSH Plugin Manager (Recommended)
-
-> The target can also be `github:wbb316/dsh-comfyui-image`: the manager fetches it from GitHub, so you do **not**
-> need to clone it locally. The equivalent command line is
-> `dsh plugin --profile <your profile> add github:wbb316/dsh-comfyui-image` (measured: 21.6 s).
 
 1. Open DSH → **Settings → Plugins** (the plugin manager);
 2. Choose **Install** and enter a local path as the target, prefixed with `link:`:
@@ -145,7 +157,7 @@ You only need to when you're changing the source (see the [Development section o
    and appends `dsh-comfyui-image` to `dsh.profile.bundles`; on failure it rolls back automatically.
 4. After installing, restart DSH (or reload when the interface prompts you to).
 
-### 2.3 Option B: Edit the Profile Manually
+### 2.3 Option C: Edit the Profile Manually
 
 Edit `~/.dsh/profiles/<your profile>/package.json`:
 
