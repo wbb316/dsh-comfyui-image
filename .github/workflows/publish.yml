@@ -1,28 +1,50 @@
 name: Publish to npm
 
-# Release 一发布就发 npm（release.yml 建完 Release 会接着触发这里），
-# 也可以在 Actions 页面手动触发重发。
+# 触发点有三条，缺一不可（见 docs/RELEASING.md 的「为什么会不自动发」）：
 #
-# 首次使用需要做一件事（见 docs/RELEASING.md）：
-#   在本仓库 Settings → Secrets and variables → Actions 里加一个名为 NPM_TOKEN 的 secret
-#   （值是 npm 的 Automation / Granular Access Token，权限只需该包的 read+write）。
-# 没配也不会失败：下面的 guard 会跳过发布并打一条 notice，仓库保持绿。
+#   push tag   —— 主路径。**必须**直接监听 tag，不能只依赖 release 事件：
+#                 release.yml 用仓库自带的 GITHUB_TOKEN 建 Release，
+#                 而 GITHUB_TOKEN 产生的 release 事件**不会**再触发别的 workflow
+#                 （GitHub 防止递归触发的规定），只挂 release 事件会导致「Release 建了、
+#                 npm 没发」，v0.1.1 就是这么漏掉的。
+#   release    —— 给人用：在 GitHub 界面上手动发布 Release 时会走这条。
+#   workflow_dispatch —— 补发/重试；可指定 tag，留空则用 package.json 的版本号。
+#
+# 首次使用需要在本仓库 Settings → Secrets and variables → Actions 里加一个名为
+# NPM_TOKEN 的 secret（npm 的 Granular Access Token，权限只需该包的 read+write）。
+# 没配也不会失败：guard 会跳过发布并打一条 notice，仓库保持绿。
 on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的 tag（例如 v0.1.1）；留空则按 package.json 的版本号发'
+        required: false
+        default: ''
 
 permissions:
   contents: read
   # 发布用 OIDC 带 provenance 签名，需要这个权限
   id-token: write
 
+# 同一时刻只允许一个发布在跑；不取消进行中的那个（发到一半被砍最糟）
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     name: npm publish
     runs-on: ubuntu-latest
     steps:
+      # 手动指定了 tag 就检那个 tag，否则检触发这次运行的那个 ref
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - uses: actions/setup-node@v7
         with:
@@ -43,25 +65,56 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # 防呆：tag 是 v0.2.0 而 package.json 还写着 0.1.0 时，发出去的就是错的版本
+      # 防呆一：tag 是 v0.2.0 而 package.json 还写着 0.1.0 时，发出去的就是错的版本。
+      # 只在 ref 真的是个 v* tag 时才校验（手动从分支触发时 ref 是分支名，无从比较）。
       - name: 校验版本号与 tag 一致
-        if: steps.guard.outputs.skip == 'false' && startsWith(github.ref, 'refs/tags/')
+        if: steps.guard.outputs.skip == 'false'
         run: |
-          want="${GITHUB_REF_NAME#v}"
-          have="$(node -p "require('./package.json').version")"
-          if [ "$want" != "$have" ]; then
-            echo "::error::tag 是 v$want，但 package.json 的 version 是 $have，拒绝发布。"
+          ver="$(node -p "require('./package.json').version")"
+          ref="${{ github.event.inputs.tag }}"
+          [ -n "$ref" ] || ref="${GITHUB_REF_NAME}"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          if [ "${ref#v}" != "$ref" ] && [ "${ref#v}" != "$ver" ]; then
+            echo "::error::tag 是 $ref，但 package.json 的 version 是 $ver，拒绝发布。"
             exit 1
           fi
-          echo "版本号一致：$have"
+          echo "版本号：$ver（ref：$ref）"
+        id: ver
+
+      # 防呆二：npm 的版本号不可覆盖重发。重复触发（比如 UI 上又发了一次 Release）
+      # 不该变成一次红色构建，检测到已存在就跳过。
+      - name: 该版本是否已发布过
+        id: exists
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          if npm view "dsh-comfyui-image@${{ steps.ver.outputs.version }}" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::npm 上已存在 ${{ steps.ver.outputs.version }}，跳过发布（同版本号不可覆盖）。"
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # 发出去的包先自证：测试自带 mock ComfyUI，不需要真装 ComfyUI，几秒就能跑完
       - name: 跑测试
-        if: steps.guard.outputs.skip == 'false'
+        if: steps.guard.outputs.skip == 'false' && steps.exists.outputs.already == 'false'
         run: npm test
 
       - name: 发布到 npm
-        if: steps.guard.outputs.skip == 'false'
+        if: steps.guard.outputs.skip == 'false' && steps.exists.outputs.already == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
+
+      - name: 结果摘要
+        if: always()
+        run: |
+          {
+            echo "### npm 发布"
+            echo ""
+            echo "| 项 | 值 |"
+            echo "| --- | --- |"
+            echo "| 版本 | ${{ steps.ver.outputs.version }} |"
+            echo "| 跳过（没配 token） | ${{ steps.guard.outputs.skip }} |"
+            echo "| 跳过（版本已存在） | ${{ steps.exists.outputs.already }} |"
+            echo "| 结论 | ${{ job.status }} |"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -5,9 +5,15 @@
 | 工作流 | 触发条件 | 做什么 |
 |---|---|---|
 | [release.yml](../.github/workflows/release.yml) | 推 `v*.*.*` tag | 建 GitHub Release，变更说明由 GitHub 按提交自动生成 |
-| [publish.yml](../.github/workflows/publish.yml) | Release 被发布 | `npm test` → `npm publish --provenance --access public` |
+| [publish.yml](../.github/workflows/publish.yml) | 推 `v*.*.*` tag / Release 被发布 / 手动触发 | `npm test` → `npm publish --provenance --access public` |
 
-顺序是自动串起来的：推 tag → Release 建立 → Release 发布事件 → npm 发布。
+推一个 tag，两条流水线**各自独立**跑起来：Release 建好，npm 那边也发好。
+
+> ⚠️ **publish.yml 必须自己监听 tag push，不能只挂 release 事件**：release.yml 用的是仓库自带的
+> `GITHUB_TOKEN`，而 GitHub 规定 **`GITHUB_TOKEN` 产生的事件不会再触发其他 workflow**（防止递归触发），
+> 所以「Release 刚建立」这个事件传不到 publish.yml。v0.1.1 就是这么漏掉的——Release 建好了、
+> npm 上却没有 0.1.1，而且两条流水线看上去都是绿的。保留 release 事件触发，是为了覆盖
+> 「人在 GitHub 界面上手动发布 Release」这条路径。
 
 ---
 
@@ -67,10 +73,13 @@ git push origin v0.2.0
 不一致直接失败并说明原因（`tag 是 v0.2.0，但 package.json 的 version 是 0.1.0，拒绝发布`），
 避免把错的版本号发出去（npm 上同一个版本号**不能覆盖重发**，这个防呆很值）。
 
+另一道防呆是**幂等**：如果这个版本号在 npm 上已经存在，`publish.yml` 会打一条 notice 并**跳过发布**，
+而不是红着脸去撞 npm 的 403。所以重复触发（比如在界面上又发了一次 Release）不会留下失败的构建记录。
+
 ## 手动重发 / 补发
 
 - **补发某个历史 tag 的 Release**：Actions → Release → Run workflow，填 tag 名（例如 `v0.1.0`）。已存在的 Release 会被跳过而不是报错。
-- **手动重发 npm**：Actions → Publish to npm → Run workflow。注意 npm 不允许重发同一个版本号，得先升版本。
+- **手动补发 npm**：Actions → Publish to npm → Run workflow，可填一个 tag（例如 `v0.1.1`）——会检出**那个 tag 指向的代码**去发，保证「npm 上的包 = tag 的内容」；留空则用默认分支的 `package.json` 版本号。已经发过的版本会被跳过，所以补发历史版本前得先确认它确实没发过（否则你看到的是「跳过」而不是「发布成功」）。
 - **本地手动发布**（不走 CI，备选）：
 
   ```bash

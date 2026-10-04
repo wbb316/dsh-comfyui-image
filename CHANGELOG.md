@@ -3,6 +3,22 @@
 本文件记录 **dsh-comfyui-image** 的版本变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [未发布]
+
+### 修复
+
+- **`publish.yml` 只挂 `release` 事件，导致 npm 漏发**（`v0.1.1` 实测暴露，属真机验证才看得见的 bug）：
+  `release.yml` 用仓库自带的 `GITHUB_TOKEN` 建 Release，而 GitHub 规定 **`GITHUB_TOKEN` 产生的事件不会再触发
+  其他 workflow**（防止递归）。结果是 tag 推上去了、Release 建好了、**npm 上却没有 0.1.1**，
+  两条流水线还都是绿的——没有任何红灯提示你漏了东西。
+  现在 `publish.yml` **自己监听 `v*.*.*` tag push**，与 release.yml 成为两条独立并行的触发链；
+  `release` 事件与手动触发保留，覆盖「在 GitHub 界面手动发 Release」和「补发历史 tag」。
+- **发布幂等**：新增「该版本在 npm 上是否已存在」检查，已存在就打 notice 跳过，
+  不再以 npm 403 的形式变成一次失败的构建（重复触发不再是噪声）。
+- **手动触发可指定 tag**：`workflow_dispatch` 增加 `tag` 输入，会检出该 tag 的内容去发，
+  保证「npm 上的包 = tag 指向的代码」；留空则用默认分支 `package.json` 的版本号，并在运行摘要里给出结论表。
+- 文档同步：[docs/RELEASING.md](docs/RELEASING.md) 写明三条触发关系，以及为什么不能只依赖 release 事件。
+
 ## [0.1.1] — 2026-10-04
 
 ### 新增
