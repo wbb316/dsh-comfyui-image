@@ -25,6 +25,17 @@
   **不需要 npm 账号、不需要本地 clone、不需要构建**）。插件管理器里把目标填成
   `github:wbb316/dsh-comfyui-image` 等价；npm 尚未发布，「npm 包名」装法要等首次发布之后。
 
+### 修复
+
+- **`docs/RELEASING.md` 里的 token 配置说明与 npm 现行界面不符**：原文写「选 Granular Access Token，
+  或者选经典的 **Automation** 类型」，但现在的 npm 点了 **Generate New Token** 之后
+  **直接进入 `New Granular Access Token` 表单，根本没有 Classic 入口**；原文里「包范围选本包或 all packages」
+  在实际界面中也不存在这一项。现已按真实界面改成逐项对照表，其中三项最容易踩：
+  `Bypass two-factor authentication (2FA)` **必须勾**（不勾发布会要验证码，CI 会卡死）、
+  `Permissions` 必须选 **Read and write (publish and stage)**（选成 `stage only` 发不出去）、
+  `Allowed IP ranges` **必须留空**（GitHub Actions 出口 IP 每次都变）。另补上 **90 天有效期与轮换**说明。
+  凭据类文档写错，代价是让人在界面里白找半小时——这次是拿真实截图逐项核对后重写的。
+
 ## [0.1.0] — 2026-10-03
 
 首个可用版本（需求书里的「实用版 V1」）。

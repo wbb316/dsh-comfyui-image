@@ -15,15 +15,29 @@
 
 npm 发布需要凭据，而凭据**不放在代码里**，只放在 GitHub 的仓库 secret 里——它不会被写进日志，也不会出现在 PR 中，任何人（包括帮你配环境的 AI）都不需要看到它的明文。
 
-1. 打开 <https://www.npmjs.com/settings/~/tokens>，点 **Generate New Token**；
-   - 选 **Granular Access Token**（推荐）：Packages 权限选 **Read and write**，包范围选本包或 all packages；
-   - 或者选经典的 **Automation** 类型（绕过 2FA 交互，适合 CI）。
-2. 复制生成的 token（只显示一次）。
+1. 打开 <https://www.npmjs.com/settings/~/tokens>，点绿色的 **Generate New Token**。
+   新版界面**直接进入 `New Granular Access Token` 表单**，没有「Classic Token」入口了（旧文档里说的
+   「Classic → Automation」在现在的 npm 上找不到，别去找）。按这样填：
+
+   | 表单项 | 填什么 | 为什么 |
+   |---|---|---|
+   | Token name | 随便取，例如 `dsh-comfyui-image-ci` | 以后轮换时好认 |
+   | Expiration | **90 days**（界面给的最长值，没有"永不过期"） | 到期后 CI 发布会失败，见下方「轮换」 |
+   | **Bypass two-factor authentication (2FA)** | **勾上** | 不勾的话发布会要求手机验证码，无人值守的流水线会卡死 |
+   | Packages and scopes → Permissions | **Read and write (publish and stage)** | 选成 `stage only` **发不出去**（只能传暂存区），这是最容易选错的一项 |
+   | Organizations | **No access** | 个人包用不到组织权限 |
+   | Allowed IP ranges | **留空** | GitHub Actions 的出口 IP 每次都不一样，填了必然失败 |
+
+2. 保存后**立刻复制** token（`npm_` 开头，只显示这一次，关掉页面就再也看不到）。
 3. 打开 <https://github.com/wbb316/dsh-comfyui-image/settings/secrets/actions>，点 **New repository secret**：
-   - Name 填 `NPM_TOKEN`（必须一字不差）；
+   - Name 填 `NPM_TOKEN`（必须一字不差，工作流就是按这个名字取的）；
    - Secret 粘贴刚复制的 token，保存。
 
 配好之后不需要改任何代码。
+
+> **轮换**：Granular token 最长 90 天，到期后 `publish.yml` 会在发布那一步失败（报 401 / 权限错误）。
+> 到时候回 token 页面删掉旧的、照上表重新生成一个，更新 `NPM_TOKEN` 即可——**不用改代码，也不用改版本号**。
+> token 也**不要**贴进聊天、issue 或提交里：它等同密码；一旦怀疑泄露，立刻在 npm 页面吊销并重新生成。
 
 > **没配会怎样？** `publish.yml` 里的 guard 会检测到 `NPM_TOKEN` 为空，**跳过** npm 发布并在运行摘要里留一条 notice——
 > 工作流仍然是绿的。这样 fork 出去的人推 tag 不会因为缺少 secret 而红一片。
